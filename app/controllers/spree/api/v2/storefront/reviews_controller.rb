@@ -1,0 +1,192 @@
+module Spree::Api::V2::Storefront
+      class ReviewsController <::Spree::Api::V2::ResourceController
+        #before_action :authenticate_user!, only: [:show]
+        before_action :require_spree_current_user
+        before_action :init_pagination, only: [:index]
+
+
+        protected
+
+        def collection
+          @collection ||= collection_finder.new(scope: scope, params: finder_params).execute
+        end        
+        
+        def sorted_collection
+          collection_sorter.new(collection, params, allowed_sort_attributes).call
+        end        
+        def collection_sorter
+          Spree::Reviews::Sort
+        end
+        def resource
+            @resource ||= scope.find_by(scope.find(params[:id])
+        end
+        def collection_serializer
+          Spree::V2::Storefront::ReviewSerializer
+        end                
+
+        def create
+          obj = Spree::Review.new
+          obj.variant_id = params[:variant_id].to_i
+          obj.product_id = params[:product_id].to_i
+          obj.user = spree_current_user
+          obj.rating = params[:rating].to_i
+          obj.suggest = params[:suggest]
+          obj.review = params[:review]
+          obj.up_vote = 0
+          obj.down_vote = 0
+
+
+          if params[:product_authenticity]
+            obj.product_authenticity = params[:product_authenticity]
+          end
+          if params[:affordable]
+            obj.affordable = params[:affordable]
+          end
+          if params[:quality]
+            obj.quality = params[:quality]
+          end
+          if params[:packaging]
+            obj.packaging = params[:packaging]
+          end          
+
+          if obj.save!
+            render json: { message: "review saved" , review_id: obj.id }, status: 201
+          else
+            render json: { message: "vote can not save succesfully "  }, status: 404
+          end
+
+          if params[:pros]
+            pros = params[:pros]
+            pros.each do |pro|  
+              obj_pros = Spree::ReviewConpron.new
+              obj_pros.review_id = obj.id
+              obj_pros.text = pro
+              obj_pros.state = 1
+              obj_pros.save!
+            end
+          end
+          if params[:cons]
+            cons = params[:cons]
+            cons.each do |con|
+              obj_cons = Spree::ReviewConpron.new
+              obj_cons.review_id = obj.id
+              obj_cons.text = con
+              obj_cons.state = -1
+              obj_cons.save!
+            end
+          end
+
+
+          # todo: create cons and prons obj for review if exist done 
+
+        end
+
+      def index # change params to sort_by=new 
+        # calculating summary
+=begin
+        product_id = params[:product_id]
+        product = Spree::Product.find(product_id)
+        all_reviews = product.reviews_count
+        avg_rating = product.avg_rating.to_i
+        query_review = Spree::Review.where("is_approved = '#{true}'").where("product_id = '#{product_id}'")
+        all_sug = 0
+        all_not_sug = 0
+        all_not_sure = 0
+        all_buyer = 0
+        for i in query_review
+          if i.suggest == "sug"
+            all_sug+=1
+            all_buyer +=1
+          elsif i.suggest == "not_sug"
+            all_not_sug += 1
+            all_buyer +=1
+          elsif i.suggest == "not_sure"
+            all_not_sure +=1 
+            all_buyer +=1
+          end
+        end
+        summary = [avg_rating,all_reviews,all_sug,all_not_sug,all_not_sure,all_buyer] 
+=end 
+          product_id = params[:product_id]
+          query = Spree::Review.where("product_id = '#{product_id}'").where("is_approved = '#{true}'").page(@pagination_page).per(@pagination_per_page)
+          #summary = Spree::Review.summary(product_id)
+          if params[:sort_by]
+            sort_by = params[:sort_by]
+            if sort_by == "new"
+              new_query = query.order(created_at: :desc)
+              render json: new_query, include: ['user','variant','review_conpron','review_image'], status: 200
+            elsif sort_by == "rating"
+              new_query = query.order(rating: :desc)
+              render json: new_query, include: ['user','variant','review_conpron','review_image'], status: 200
+            elsif sort_by == "old"
+              new_query = query.order(created_at: :asc)
+              render json: new_query, include: ['user','variant','review_conpron','review_image'], status: 200
+            elsif sort_by == "vote"
+              new_query = query.order(up_vote: :desc)
+              render json: new_query, include: ['user','variant','review_conpron','review_image'], status: 200
+            end
+          else
+              render json: query, include: ['user','variant','review_conpron','review_image'], status: 200
+              #render json: {summary: "#{summary}"}
+          end
+
+      end
+      
+
+      def save_image
+        obj = Spree::ReviewImage.new
+        obj.review_id = params[:review_id]
+        #obj.build_image(params[:images])
+        obj.images.attach([params[:image]])
+        if obj.save!
+          return render json: { message: "review saved" , id_obj: obj.id }, status: 201
+        else 
+          return render json: { message: "review not saved"  }, status: 201
+
+        end
+      end
+      
+      def check_is_buyer
+        product_id = params[:product_id]
+        user_id = params[:user_id]
+        user = Spree::User.find(user_id)
+        flag = false
+        orders = user.orders
+        if orders.blank?
+          flag = false
+          return render json: { is_buyer: "False"  }, status: 200
+        else
+            orders.each do |order|
+            line = order.line_items
+            line.each do |items|
+                variant = items.variant
+                if variant.product_id == product_id
+                    flag = true
+                    return render json: { is_buyer: "True"  }, status: 200
+                else
+                    flag = false
+                    return render json: { is_buyer: "False"  }, status: 200
+                end
+              end
+            end
+          end
+      end
+
+
+        private
+    
+      def permitted_review_attributes
+          [:rating,:review, :product_id, :variant_id]
+      end
+    
+        def review_params
+          params.require(:review).permit(permitted_review_attributes)
+        end
+      def init_pagination
+        @pagination_page = params[:page].present? ? params[:page].to_i : 1
+        @pagination_per_page = params[:per_page].present? ? params[:per_page].to_i : 5 # todo: add config in setting like Spree::Reviews::Config[:paginate_size]
+      end
+  end
+end
+
+  
