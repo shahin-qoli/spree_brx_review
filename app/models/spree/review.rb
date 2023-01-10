@@ -36,7 +36,7 @@ class Spree::Review < ActiveRecord::Base
   def approved # this logic return true or false based on approved 
     self.is_approved?
   end
-=begin
+
 
   def summary(product_id)
     product = Spree::Product.find(product_id)
@@ -63,7 +63,7 @@ class Spree::Review < ActiveRecord::Base
     summary
 
   end
-=end
+
 
     def feedback_stars
       return 0 if feedback_reviews.size <= 0
