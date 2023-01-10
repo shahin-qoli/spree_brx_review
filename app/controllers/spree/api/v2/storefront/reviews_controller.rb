@@ -1,8 +1,8 @@
 module Spree::Api::V2::Storefront
       class ReviewsController < ApplicationController
         #before_action :authenticate_user!, only: [:show]
-        before_action :require_spree_current_user
-        before_action :init_pagination, only: [:index]
+        #before_action :require_spree_current_user
+        #before_action :init_pagination, only: [:index]
 
         def index # change params to sort_by=new 
           product_id = params[:product_id]
