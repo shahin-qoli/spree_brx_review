@@ -4,7 +4,7 @@ module Spree
       class ReviewSerializer < BaseSerializer
 
 
-        
+        puts "we are in serializer"
       end
     end
   end
