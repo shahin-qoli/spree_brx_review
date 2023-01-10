@@ -24,7 +24,7 @@ module Spree::Api::V2::Storefront
               render json: @query
             end
           else
-              render json: @query, serializer: Spree::V2::Storefront::ReviewSerializer 
+              render json: Spree::V2::Storefront::ReviewSerializer.new(@query).to_serialized_json #@query, serializer: Spree::V2::Storefront::ReviewSerializer 
               #render json: {summary: "#{summary}"}
           end
 
