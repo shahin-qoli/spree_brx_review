@@ -4,25 +4,6 @@ module Spree::Api::V2::Storefront
         before_action :require_spree_current_user
         before_action :init_pagination, only: [:index]
 
-
-        protected
-
-        def collection
-          @collection ||= collection_finder.new(scope: scope, params: finder_params).execute
-        end        
-        
-        def sorted_collection
-          collection_sorter.new(collection, params, allowed_sort_attributes).call
-        end        
-        def collection_sorter
-          Spree::Reviews::Sort #.constantize
-        end
-        def resource
-            @resource ||= scope.find_by(scope.find(params[:id]))
-        end
-        def collection_serializer
-          Spree::V2::Storefront::ReviewSerializer #.constantize
-        end                
         def index # change params to sort_by=new 
           product_id = params[:product_id]
           query = Spree::Review.where("product_id = '#{product_id}'").where("is_approved = '#{true}'").page(@pagination_page).per(@pagination_per_page)
@@ -48,6 +29,25 @@ module Spree::Api::V2::Storefront
           end
 
         end
+        protected
+
+        def collection
+          @collection ||= collection_finder.new(scope: scope, params: finder_params).execute
+        end        
+        
+        def sorted_collection
+          collection_sorter.new(collection, params, allowed_sort_attributes).call
+        end        
+        def collection_sorter
+          Spree::Reviews::Sort #.constantize
+        end
+        def resource
+            @resource ||= scope.find_by(scope.find(params[:id]))
+        end
+        def collection_serializer
+          Spree::V2::Storefront::ReviewSerializer #.constantize
+        end                
+
         def create
           obj = Spree::Review.new
           obj.variant_id = params[:variant_id].to_i
