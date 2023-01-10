@@ -4,7 +4,7 @@ module Spree
       class ReviewSerializer < BaseSerializer
         puts "FFFFFFFFFF************"
         set_type :review
-        attributes :review, :rating, :up_vote,  :down_vote, :suggest, :summary self.product_id
+        attributes :review, :rating, :up_vote,  :down_vote, :suggest
 
         belongs_to :user, serializer: :user, id_method_name: :user_id, object_method_name: :user_id, record_type: :user
         belongs_to :variant
