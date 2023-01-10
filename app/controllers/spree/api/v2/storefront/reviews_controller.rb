@@ -11,20 +11,20 @@ module Spree::Api::V2::Storefront
           if params[:sort_by]
             sort_by = params[:sort_by]
             if sort_by == "new"
-              new_query = query.order(created_at: :desc)
-              render json: new_query, include: ['user','variant','review_conpron','review_image'], status: 200
+              query = query.order(created_at: :desc)
+              render json: query
             elsif sort_by == "rating"
-              new_query = query.order(rating: :desc)
-              render json: new_query, include: ['user','variant','review_conpron','review_image'], status: 200
+              query = query.order(rating: :desc)
+              render json: query
             elsif sort_by == "old"
-              new_query = query.order(created_at: :asc)
-              render json: new_query, include: ['user','variant','review_conpron','review_image'], status: 200
+              query = query.order(created_at: :asc)
+              render json: query
             elsif sort_by == "vote"
-              new_query = query.order(up_vote: :desc)
-              render json: new_query, include: ['user','variant','review_conpron','review_image'], status: 200
+              query = query.order(up_vote: :desc)
+              render json: query
             end
           else
-              render json: query, include: ['user','variant','review_conpron','review_image'], status: 200
+              render json: query
               #render json: {summary: "#{summary}"}
           end
 

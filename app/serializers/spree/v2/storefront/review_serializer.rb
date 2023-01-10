@@ -8,7 +8,7 @@ module Spree
         belongs_to :user, serializer: :user, id_method_name: :user_id, object_method_name: :user_id, record_type: :user
         belongs_to :variant
         #belongs_to :review_image
-        has_many   :review_conpron as: :viewable
+        has_many   :review_conpron
 
         
       end
