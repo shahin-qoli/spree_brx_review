@@ -15,13 +15,13 @@ module Spree::Api::V2::Storefront
           collection_sorter.new(collection, params, allowed_sort_attributes).call
         end        
         def collection_sorter
-          Spree::Reviews::Sort
+          Spree::Reviews::Sort #.constantize
         end
         def resource
-            @resource ||= scope.find_by(scope.find(params[:id])
+            @resource ||= scope.find_by(scope.find(params[:id]))
         end
         def collection_serializer
-          Spree::V2::Storefront::ReviewSerializer
+          Spree::V2::Storefront::ReviewSerializer #.constantize
         end                
 
         def create
