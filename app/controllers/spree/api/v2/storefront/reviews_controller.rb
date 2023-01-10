@@ -23,7 +23,31 @@ module Spree::Api::V2::Storefront
         def collection_serializer
           Spree::V2::Storefront::ReviewSerializer #.constantize
         end                
+        def index # change params to sort_by=new 
+          product_id = params[:product_id]
+          query = Spree::Review.where("product_id = '#{product_id}'").where("is_approved = '#{true}'").page(@pagination_page).per(@pagination_per_page)
+          #summary = Spree::Review.summary(product_id)
+          if params[:sort_by]
+            sort_by = params[:sort_by]
+            if sort_by == "new"
+              new_query = query.order(created_at: :desc)
+              render json: new_query, include: ['user','variant','review_conpron','review_image'], status: 200
+            elsif sort_by == "rating"
+              new_query = query.order(rating: :desc)
+              render json: new_query, include: ['user','variant','review_conpron','review_image'], status: 200
+            elsif sort_by == "old"
+              new_query = query.order(created_at: :asc)
+              render json: new_query, include: ['user','variant','review_conpron','review_image'], status: 200
+            elsif sort_by == "vote"
+              new_query = query.order(up_vote: :desc)
+              render json: new_query, include: ['user','variant','review_conpron','review_image'], status: 200
+            end
+          else
+              render json: query, include: ['user','variant','review_conpron','review_image'], status: 200
+              #render json: {summary: "#{summary}"}
+          end
 
+        end
         def create
           obj = Spree::Review.new
           obj.variant_id = params[:variant_id].to_i
@@ -79,31 +103,7 @@ module Spree::Api::V2::Storefront
 
         end
 
-        def index # change params to sort_by=new 
-          product_id = params[:product_id]
-          query = Spree::Review.where("product_id = '#{product_id}'").where("is_approved = '#{true}'").page(@pagination_page).per(@pagination_per_page)
-          #summary = Spree::Review.summary(product_id)
-          if params[:sort_by]
-            sort_by = params[:sort_by]
-            if sort_by == "new"
-              new_query = query.order(created_at: :desc)
-              render json: new_query, include: ['user','variant','review_conpron','review_image'], status: 200
-            elsif sort_by == "rating"
-              new_query = query.order(rating: :desc)
-              render json: new_query, include: ['user','variant','review_conpron','review_image'], status: 200
-            elsif sort_by == "old"
-              new_query = query.order(created_at: :asc)
-              render json: new_query, include: ['user','variant','review_conpron','review_image'], status: 200
-            elsif sort_by == "vote"
-              new_query = query.order(up_vote: :desc)
-              render json: new_query, include: ['user','variant','review_conpron','review_image'], status: 200
-            end
-          else
-              render json: query, include: ['user','variant','review_conpron','review_image'], status: 200
-              #render json: {summary: "#{summary}"}
-          end
 
-        end
       
 
         def save_image
