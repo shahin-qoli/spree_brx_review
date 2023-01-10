@@ -6,25 +6,25 @@ module Spree::Api::V2::Storefront
 
         def index # change params to sort_by=new 
           product_id = params[:product_id]
-          query = Spree::Review.where("product_id = '#{product_id}'").where("is_approved = '#{true}'").page(@pagination_page).per(@pagination_per_page)
+          @query = Spree::Review.where("product_id = '#{product_id}'").where("is_approved = '#{true}'").page(@pagination_page).per(@pagination_per_page)
           #summary = Spree::Review.summary(product_id)
           if params[:sort_by]
             sort_by = params[:sort_by]
             if sort_by == "new"
-              query = query.order(created_at: :desc)
-              render json: query
+              @query = @query.order(created_at: :desc)
+              render json: @query
             elsif sort_by == "rating"
-              query = query.order(rating: :desc)
-              render json: query
+              @query = @query.order(rating: :desc)
+              render json: @query
             elsif sort_by == "old"
-              query = query.order(created_at: :asc)
+              @query = @query.order(created_at: :asc)
               render json: query
             elsif sort_by == "vote"
-              query = query.order(up_vote: :desc)
-              render json: query
+              @query = @query.order(up_vote: :desc)
+              render json: @query
             end
           else
-              render json: query
+              render json: query, serializer: ReviewSerializer
               #render json: {summary: "#{summary}"}
           end
 
