@@ -6,7 +6,7 @@ module Spree::Api::V2::Storefront
 
         def index # change params to sort_by=new 
           product_id = params[:product_id]
-          @query = Spree::Review.where("product_id = '#{product_id}'").where("is_approved = '#{true}'").page(@pagination_page).per(@pagination_per_page)
+          @query = Spree::Review.all #where("product_id = '#{product_id}'").where("is_approved = '#{true}'").page(@pagination_page).per(@pagination_per_page)
           #summary = Spree::Review.summary(product_id)
           if params[:sort_by]
             sort_by = params[:sort_by]
