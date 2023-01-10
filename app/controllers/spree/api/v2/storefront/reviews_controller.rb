@@ -1,5 +1,5 @@
 module Spree::Api::V2::Storefront
-      class ReviewsController <::Spree::Api::V2::ResourceController
+      class ReviewsController < ApplicationController
         #before_action :authenticate_user!, only: [:show]
         before_action :require_spree_current_user
         before_action :init_pagination, only: [:index]
