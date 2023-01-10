@@ -107,16 +107,16 @@ module Spree::Api::V2::Storefront
       
 
         def save_image
-          obj = Spree::ReviewImage.new
-          obj.review_id = params[:review_id]
+          #obj = Spree::ReviewImage.new
+          review = Spree::Review.find(params[:review_id])
+          images = params[:images]
+          images.each do |image|
+            review.create_image(attachment: image)
+          end  
+          #obj.review_id = params[:review_id]
           #obj.build_image(params[:images])
-          obj.images.attach([params[:image]])
-          if obj.save!
-            return render json: { message: "review saved" , id_obj: obj.id }, status: 201
-          else 
-            return render json: { message: "review not saved"  }, status: 201
-
-          end
+          #obj.images.attach([params[:image]])
+          return render json: { message: "review saved" }, status: 201
         end
       
         def check_is_buyer

@@ -8,7 +8,7 @@ class Spree::Review < ActiveRecord::Base
     #before_save :images_limit_min 
     after_save :recalculate_product_rating, if: :approved
     after_destroy :recalculate_product_rating
-    has_one  :review_image
+    has_many :images, as: :viewable, dependent: :destroy, class_name: 'Spree::ReviewImage'
   
     validates :rating, numericality: {
       only_integer: true,
