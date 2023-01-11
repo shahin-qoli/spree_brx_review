@@ -33,7 +33,7 @@ module Spree::Api::V2::Storefront
           #obj = Spree::ReviewImage.new
           review = Spree::Review.find(params[:review_id])
           image = params[:images]
-          review.iamges.create!(attachment: image)
+          review.images.create!(viewable_type: "Spree::Review", viewable_id: params[:review_id] )
           #obj.review_id = params[:review_id]
           #obj.build_image(params[:images])
           #obj.images.attach([params[:image]])
