@@ -1,6 +1,6 @@
 module Spree::Api::V2::Storefront
       class ReviewsController < ::Spree::Api::V2::ResourceController
-        before_action :authenticate_user!
+        #before_action :authenticate_user
         #before_action :require_spree_current_user
         #before_action :init_pagination, only: [:index]
 
@@ -32,10 +32,8 @@ module Spree::Api::V2::Storefront
         def save_image
           #obj = Spree::ReviewImage.new
           review = Spree::Review.find(params[:review_id])
-          images = params[:images]
-          images.each do |image|
-            review.create_image(attachment: image)
-          end  
+          image = params[:images]
+          review.create_image(attachment: image)
           #obj.review_id = params[:review_id]
           #obj.build_image(params[:images])
           #obj.images.attach([params[:image]])
