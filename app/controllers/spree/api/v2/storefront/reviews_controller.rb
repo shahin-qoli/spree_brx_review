@@ -111,7 +111,7 @@ module Spree::Api::V2::Storefront
           review = Spree::Review.find(params[:review_id])
           images = params[:images]
           images.each do |image|
-            review.create_image(attachment: image)
+            review.image(attachment: image)
           end  
           #obj.review_id = params[:review_id]
           #obj.build_image(params[:images])
